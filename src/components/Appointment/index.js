@@ -39,7 +39,7 @@ export default function Appointment(props) {
     props
       .bookInterview(props.id, interview)
       .then(() => transition(SHOW))
-      .catch(() => transition(ERROR_SAVE));
+      .catch(() => transition(ERROR_SAVE, true));
   }
 
 
@@ -48,7 +48,7 @@ export default function Appointment(props) {
   }
 
 
-  const deleteInterview = () => {
+  const destroy = () => {
     transition(DELETING);
     props
       .cancelInterview(props.id)
@@ -61,7 +61,7 @@ export default function Appointment(props) {
   }
 
   return (
-    <article className="appointment">
+    <article className="appointment" data-testid="appointment">
       <Header time={props.time}/>
 
       {mode === EMPTY && <Empty onAdd={() => transition(CREATE)} />}
@@ -95,7 +95,7 @@ export default function Appointment(props) {
         <Confirm
           message="Are you sure you would like to delete?"
           onCancel={() => back()}
-          onConfirm={deleteInterview}
+          onConfirm={destroy}
         />
       )}
 
@@ -111,7 +111,7 @@ export default function Appointment(props) {
 
       {mode === ERROR_SAVE && (
         <Error
-          message="Failed to create appointment."
+          message="Failed to create/edit appointment."
           onClose={() => back()}
         />
       )}

@@ -18,7 +18,6 @@ import {
 
 import Application from "components/Application";
 
-beforeEach(cleanup);
 
 afterEach(cleanup);
 

@@ -93,19 +93,3 @@ export default {
     });
   })
 }
-
-// Object Lookup
-// export default {
-//   get: jest.fn(url => {
-//     const dataObject = {
-//       '/api/days': fixtures.days,
-//       '/api/appointments': fixtures.appointments,
-//       '/api/interviewers': fixtures.interviewers
-//     }
-//     return Promise.resolve({
-//       status: 200,
-//       statusText: "OK",
-//       data: dataObject[url]
-//     })
-//   })
-// }

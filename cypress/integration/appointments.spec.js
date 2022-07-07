@@ -1,5 +1,6 @@
 describe("Appointments", () => {
 
+  // Resets database, visit the root of the web server, and ensure all the data is loaded
   beforeEach(() => {
     cy.request('GET', '/api/debug/reset');
     cy.visit("/");

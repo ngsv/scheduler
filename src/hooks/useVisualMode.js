@@ -10,7 +10,8 @@ export default function useVisualMode(initial) {
       newArray.pop();
       setHistory([...newArray, newMode]);
     } else {
-      setHistory([...history, newMode]);
+      // setHistory([...history, newMode]);
+      setHistory(prev => [ ...prev, newMode ]);
     }
     setMode(newMode);
   }

@@ -8,16 +8,19 @@ export default function Form(props) {
   const [interviewer, setInterviewer] = useState(props.interviewer || null);
   const [error, setError] = useState("");
 
+  // Reset student name input field and interviewer
   const reset = () => {
     setStudent("");
     setInterviewer(null);
   }
 
+  // Cancels a booked interview
   const cancel = () => {
     reset();
     props.onCancel();
   }
 
+  // Ensures that the student input field is not blank and an interviewer is selected
   const validate = () => {
     if (student === "") {
       setError("Student name cannot be blank");
@@ -58,7 +61,7 @@ export default function Form(props) {
       <section className="appointment__card-right">
         <section className="appointment__actions">
           <Button danger onClick={cancel}>Cancel</Button>
-          <Button confirm onClick={() => validate()}>Save</Button>
+          <Button confirm onClick={validate}>Save</Button>
         </section>
       </section>
     </main>

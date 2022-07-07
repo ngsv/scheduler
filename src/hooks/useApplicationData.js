@@ -1,4 +1,4 @@
-import { useState, useEffect, useReducer } from 'react';
+import { useEffect, useReducer } from 'react';
 import axios from 'axios';
 
 const SET_DAY = "SET_DAY";
@@ -40,7 +40,6 @@ export default function useApplicationData() {
       axios.get('/api/appointments'),
       axios.get('/api/interviewers')
     ]).then((all) => {
-      // console.log(all);
       dispatch({type: SET_APPLICATION_DATA, days: all[0].data, appointments: all[1].data, interviewers: all[2].data});
     })
   }, []);
@@ -77,7 +76,6 @@ export default function useApplicationData() {
         updateSpots(id);
         dispatch({ type: SET_INTERVIEW, appointments });
       })
-      .catch(err => console.log(err.message));
   }
 
   // Makes an HTTP request to delete an interview and updates the state
@@ -97,7 +95,6 @@ export default function useApplicationData() {
         updateSpots(id, true);
         dispatch({ type: SET_INTERVIEW, appointments });
       })
-      .catch(err => console.log(err.message));
   }
 
 

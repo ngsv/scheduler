@@ -4,6 +4,7 @@ import classNames from 'classnames';
 
 export default function InterviewerListItem(props) {
 
+  // Give the InterviewerListItem an additional 'interviewers__item--selected' class if it is selected
   let interviewerClass = classNames('interviewers__item', {
     'interviewers__item--selected': props.selected
   })

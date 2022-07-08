@@ -4,7 +4,6 @@ import DayList from './DayList';
 import Appointment from './Appointment/index';
 
 import { getAppointmentsForDay, getInterviewersForDay } from '../helpers/selectors.js';
-
 import useApplicationData from '../hooks/useApplicationData.js';
 
 import "components/Application.scss";
@@ -12,6 +11,7 @@ import "components/Application.scss";
 
 export default function Application(props) {
 
+  // State object
   const {
     state,
     setDay,
@@ -19,11 +19,12 @@ export default function Application(props) {
     cancelInterview
   } = useApplicationData();
 
-  const dailyAppointments = getAppointmentsForDay(state, state.day);
-  const dailyInterviewers = getInterviewersForDay(state, state.day);
+  const dailyAppointments = getAppointmentsForDay(state, state.day); // Get all appointments for the provided day
+  const dailyInterviewers = getInterviewersForDay(state, state.day); // Get all interviewers available for the provided day
 
+  // Map through all the appointments for the provided day and create Appointment components for each appointment
   const newAppointments = dailyAppointments.map((appointment) => {
-    // Passes interviewer name as props (or null if there is no appointment)
+    // Get interviewer name (or null if there is no appointment)
     let interviewerName = null;
     if (appointment.interview !== null) {
       const interviewerObj = dailyInterviewers.find(interviewer => interviewer.id === appointment.interview.interviewer);

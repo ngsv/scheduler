@@ -33,7 +33,7 @@ export default function useApplicationData() {
   const setDay = day => dispatch({ type: SET_DAY, day });
 
 
-  // Retrieve data from API
+  // Retrieve data from API and update state
   useEffect(() => {
     Promise.all([
       axios.get('/api/days'),
@@ -49,8 +49,10 @@ export default function useApplicationData() {
   const updateSpots = (appointmentId, cancel = false) => {
     const interviews = state.appointments;
     const days = state.days;
-    let dayUpdate = days.find(day => day.appointments.find(appointmentNum => appointmentNum === appointmentId)); // Finds the appointment id from the appointments array from the days object (/api/days)
+    // Gets the day object by finding the appointment id from the appointments array from the days object (/api/days)
+    let dayUpdate = days.find(day => day.appointments.find(appointmentNum => appointmentNum === appointmentId));
 
+    // If the interview is initially null, an appointment has been created/edited, so decrease the spots by 1
     if (interviews[appointmentId].interview === null) {
       dayUpdate.spots = dayUpdate.spots - 1;
     } else if (cancel) {
@@ -80,11 +82,11 @@ export default function useApplicationData() {
 
   // Makes an HTTP request to delete an interview and updates the state
   const cancelInterview = (id) => {
-    const appointment = {
+    const appointment = { // Replace the interview object with null
       ...state.appointments[id],
       interview: null
     };
-    const appointments = {
+    const appointments = { // Update the appointments list with the deleted interview
       ...state.appointments,
       [id]: appointment
     };

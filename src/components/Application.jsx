@@ -1,23 +1,20 @@
 import React from "react";
 
-import DayList from './DayList';
-import Appointment from './Appointment/index';
+import DayList from "./DayList";
+import Appointment from "./Appointment";
 
-import { getAppointmentsForDay, getInterviewersForDay } from '../helpers/selectors.js';
-import useApplicationData from '../hooks/useApplicationData.js';
+import useApplicationData from "../hooks/useApplicationData";
+import {
+  getAppointmentsForDay,
+  getInterviewersForDay,
+} from "../helpers/selectors.js";
 
 import "components/Application.scss";
 
-
-export default function Application(props) {
-
+export default function Application() {
   // State object
-  const {
-    state,
-    setDay,
-    bookInterview,
-    cancelInterview
-  } = useApplicationData();
+  const { state, setDay, bookInterview, cancelInterview } =
+    useApplicationData();
 
   const dailyAppointments = getAppointmentsForDay(state, state.day); // Get all appointments for the provided day
   const dailyInterviewers = getInterviewersForDay(state, state.day); // Get all interviewers available for the provided day
@@ -27,7 +24,9 @@ export default function Application(props) {
     // Get interviewer name (or null if there is no appointment)
     let interviewerName = null;
     if (appointment.interview !== null) {
-      const interviewerObj = dailyInterviewers.find(interviewer => interviewer.id === appointment.interview.interviewer);
+      const interviewerObj = dailyInterviewers.find(
+        (interviewer) => interviewer.id === appointment.interview.interviewer
+      );
       interviewerName = interviewerObj.name;
     }
 
@@ -41,7 +40,7 @@ export default function Application(props) {
         cancelInterview={cancelInterview}
       />
     );
-  })
+  });
 
   return (
     <main className="layout">
@@ -53,11 +52,7 @@ export default function Application(props) {
         />
         <hr className="sidebar__separator sidebar--centered" />
         <nav className="sidebar__menu">
-        <DayList
-          days={state.days}
-          value={state.day}
-          onChange={setDay}
-        />
+          <DayList days={state.days} value={state.day} onChange={setDay} />
         </nav>
         <img
           className="sidebar__lhl sidebar--centered"

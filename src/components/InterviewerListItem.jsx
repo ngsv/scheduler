@@ -1,13 +1,13 @@
-import React from 'react';
-import './InterviewerListItem.scss';
-import classNames from 'classnames';
+import React from "react";
+import classNames from "classnames";
+
+import "./InterviewerListItem.scss";
 
 export default function InterviewerListItem(props) {
-
   // Give the InterviewerListItem an additional 'interviewers__item--selected' class if it is selected
-  let interviewerClass = classNames('interviewers__item', {
-    'interviewers__item--selected': props.selected
-  })
+  const interviewerClass = classNames("interviewers__item", {
+    "interviewers__item--selected": props.selected,
+  });
 
   return (
     <li className={interviewerClass} onClick={props.setInterviewer}>

@@ -7,6 +7,7 @@ import useApplicationData from "../hooks/useApplicationData";
 import {
   getAppointmentsForDay,
   getInterviewersForDay,
+  getInterview,
 } from "../helpers/selectors.js";
 
 import "components/Application.scss";
@@ -19,23 +20,17 @@ export default function Application() {
   const dailyAppointments = getAppointmentsForDay(state, state.day); // Get all appointments for the provided day
   const dailyInterviewers = getInterviewersForDay(state, state.day); // Get all interviewers available for the provided day
 
-  // Map through all the appointments for the provided day and create Appointment components for each appointment
-  const newAppointments = dailyAppointments.map((appointment) => {
+  const appointmentComponents = dailyAppointments.map((appointment) => {
     // Get interviewer name (or null if there is no appointment)
-    let interviewerName = null;
-    if (appointment.interview !== null) {
-      const interviewerObj = dailyInterviewers.find(
-        (interviewer) => interviewer.id === appointment.interview.interviewer
-      );
-      interviewerName = interviewerObj.name;
-    }
+    const interview = getInterview(state, appointment.interview);
 
     return (
       <Appointment
         key={appointment.id}
-        {...appointment}
+        id={appointment.id}
+        time={appointment.time}
+        interview={interview}
         interviewers={dailyInterviewers}
-        interviewer={interviewerName}
         bookInterview={bookInterview}
         cancelInterview={cancelInterview}
       />
@@ -61,7 +56,7 @@ export default function Application() {
         />
       </section>
       <section className="schedule">
-        {newAppointments}
+        {appointmentComponents}
         <Appointment key="last" time="5pm" />
       </section>
     </main>

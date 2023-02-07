@@ -1,33 +1,12 @@
 import axios from "axios";
 import { useEffect, useReducer } from "react";
 
+import { getInterview } from "helpers/selectors";
+
 const SET_DAY = "SET_DAY";
 const SET_APPLICATION_DATA = "SET_APPLICATION_DATA";
 const SET_INTERVIEW = "SET_INTERVIEW";
 const SET_SPOTS = "SET_SPOTS";
-
-// const reducer = (state, action) => {
-//   switch (action.type) {
-//     case SET_DAY: {
-//       return { ...state, day: action.day };
-//     }
-//     case SET_APPLICATION_DATA: {
-//       return {
-//         ...state,
-//         days: action.days,
-//         appointments: action.appointments,
-//         interviewers: action.interviewers,
-//       };
-//     }
-//     case SET_INTERVIEW: {
-//       return { ...state, appointments: action.appointments };
-//     }
-//     default:
-//       throw new Error(
-//         `Tried to reduce with unsupported action type: ${action.type}`
-//       );
-//   }
-// };
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -65,6 +44,58 @@ export default function useApplicationData() {
 
   const setDay = (day) => dispatch({ type: SET_DAY, payload: { day } });
 
+  useEffect(() => {
+    const webSocket = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
+    webSocket.onopen = () => {
+      webSocket.send("ping");
+    };
+    // The server will send a message to every connected client when we book or delete an interview
+    // This message contains the data needed to create or delete interview records.
+    webSocket.onmessage = (event) => {
+      console.log(event.data);
+      const messageReceived = JSON.parse(event.data);
+
+      if (messageReceived.type === "SET_INTERVIEW") {
+        const id = messageReceived.id; // Appointment id (str)
+
+        const days = [...state.days];
+
+        for (let i = 0; i < days.length; i++) {
+          if (days[i].appointments.includes(id)) {
+            if (
+              // Compare current appointments state with message received from server to see if an interview was booked or deleted
+              state.appointments[id].interview &&
+              messageReceived.interview === null
+            ) {
+              days[i].spots += 1;
+            } else if (
+              state.appointments[id].interview === null &&
+              messageReceived.interview
+            ) {
+              days[i].spots -= 1;
+            }
+          }
+        }
+        dispatch({ type: SET_SPOTS, payload: { days } });
+
+        // Update appointments
+        const appointment = {
+          ...state.appointments[id],
+          interview: messageReceived.interview,
+        };
+        const appointments = {
+          ...state.appointments,
+          [id]: appointment,
+        };
+        dispatch({ type: SET_INTERVIEW, payload: { appointments } });
+      }
+    };
+
+    return () => {
+      webSocket.close();
+    };
+  }, [state]);
+
   // Retrieve data from API and update state
   useEffect(() => {
     Promise.all([
@@ -84,65 +115,55 @@ export default function useApplicationData() {
   }, []);
 
   // Updates the number of appointment spots remaining in the DayList
-  const updateSpots = (appointmentId, cancel = false) => {
-    const interviews = state.appointments;
-    const days = state.days;
-    // Gets the day object by finding the appointment id from the appointments array from the days object (/api/days)
-    let dayUpdate = days.find((day) =>
-      day.appointments.find(
-        (appointmentNum) => appointmentNum === appointmentId
-      )
-    );
+  // const updateSpots = (id, addSpot = false) => {
+  //   const edit = getInterview(state, state.appointments[`${id}`].interview); // null if creating an appointment
+  //   const days = [...state.days];
 
-    // If the interview is initially null, an appointment has been created/edited, so decrease the spots by 1
-    if (interviews[appointmentId].interview === null) {
-      dayUpdate.spots = dayUpdate.spots - 1;
-    } else if (cancel) {
-      dayUpdate.spots = dayUpdate.spots + 1;
-    }
-  };
+  //   for (let i = 0; i < days.length; i++) {
+  //     if (days[i].appointments.includes(id)) {
+  //       if (addSpot) {
+  //         days[i].spots += 1;
+  //       } else if (!edit) {
+  //         days[i].spots -= 1;
+  //       }
+  //     }
+  //   }
+  //   dispatch({ type: SET_SPOTS, payload: { days } });
+  // };
 
   // Makes an HTTP request to book an interview and updates the state
   const bookInterview = (id, interview) => {
+    // Replace null with interview object in the interview key of appointments
     const appointment = {
-      // Replace null with interview object in the interview key of appointments
       ...state.appointments[id],
       interview: { ...interview },
     };
-
+    // Update the appointments list with the newly created interview
     const appointments = {
-      // Update the appointments list with the newly created interview
       ...state.appointments,
       [id]: appointment,
     };
-
-    // return axios.put(`/api/appointments/${id}`, { interview }).then(() => {
-    //   updateSpots(id);
-    //   dispatch({ type: SET_INTERVIEW, appointments });
-    // });
     return axios.put(`/api/appointments/${id}`, appointment).then(() => {
-      updateSpots(id);
-      dispatch({ type: SET_INTERVIEW, payload: { appointments } });
+      // updateSpots(id);
+      // dispatch({ type: SET_INTERVIEW, payload: { appointments } });
     });
   };
 
   // Makes an HTTP request to delete an interview and updates the state
   const cancelInterview = (id) => {
+    // Replace the interview object with null
     const appointment = {
-      // Replace the interview object with null
       ...state.appointments[id],
       interview: null,
     };
-
+    // Update the appointments list with the deleted interview
     const appointments = {
-      // Update the appointments list with the deleted interview
       ...state.appointments,
       [id]: appointment,
     };
-
     return axios.delete(`/api/appointments/${id}`, appointment).then(() => {
-      updateSpots(id, true);
-      dispatch({ type: SET_INTERVIEW, payload: { appointments } });
+      // updateSpots(id, true);
+      // dispatch({ type: SET_INTERVIEW, payload: { appointments } });
     });
   };
 

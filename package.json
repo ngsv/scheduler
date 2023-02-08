@@ -57,5 +57,8 @@
       "src/**/*.jsx",
       "!src/index.js"
     ]
+  },
+  "engines": {
+    "node": "12.22.7"
   }
 }
